@@ -17,9 +17,8 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.sql.Timestamp;
+import java.time.*;
 import java.util.ResourceBundle;
 
 import static bowden.scheduling.Helper.Methods.home;
@@ -95,13 +94,13 @@ public class ModifyAppointment implements Initializable {
         LocalTime endTime = endComboBox.getValue();
         LocalDateTime end = LocalDateTime.of(endDate, endTime);
 
+
         // Get selected contact and user
         Contacts contact = contactComboBox.getValue();
         Users user = userComboBox.getValue();
 
         // Get selected customer
         Customer customer = customerComboBox.getValue();
-
 
         // Create appointment object and call DAO method to save it
         Appointments existingAppointment = AppointmentsDaoImpl.getAppointment(id);
@@ -119,8 +118,10 @@ public class ModifyAppointment implements Initializable {
             e.printStackTrace();
         }
         home(event);
-
     }
+
+
+
 
     @FXML
     public void sendAppointment(Appointments appointments) throws SQLException {

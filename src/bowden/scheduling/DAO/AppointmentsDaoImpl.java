@@ -70,17 +70,27 @@ public class AppointmentsDaoImpl {
 
             return false;
         }
-        // get the business hours in the user's local time zone
-        ObservableList<LocalTime> businessHours = DateTime.getBusinessHoursInTimeZone(ZoneId.systemDefault());
-        LocalTime startBusinessHours = businessHours.get(0);
-        LocalTime endBusinessHours = businessHours.get(businessHours.size() - 1);
+        // check if the appointment spans multiple days
+        if (!appointment.getStart().toLocalDate().equals(appointment.getEnd().toLocalDate())) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Appointment spans multiple days");
+            alert.setHeaderText("Can't Schedule Appointment");
+            alert.setContentText("The appointment cannot span multiple days.");
+            alert.showAndWait();
+            return false;
+        }
 
-        // convert the appointment start and end times to the user's local time zone
-        ZonedDateTime startAppointmentLocal = appointment.getStart().atZone(ZoneId.systemDefault());
-        ZonedDateTime endAppointmentLocal = appointment.getEnd().atZone(ZoneId.systemDefault());
+        // get the business hours in EST
+        ObservableList<LocalTime> businessHours = DateTime.getBusinessHoursInTimeZone(ZoneId.of("America/New_York"));
+        LocalTime startBusinessHoursEST = businessHours.get(0);
+        LocalTime endBusinessHoursEST = businessHours.get(businessHours.size() - 1);
 
-        // check if the appointment start and end times fall within the business hours
-        if (startAppointmentLocal.toLocalTime().isBefore(startBusinessHours) || endAppointmentLocal.toLocalTime().isAfter(endBusinessHours)) {
+        // convert the appointment start and end times to EST
+        ZonedDateTime startAppointmentEST = appointment.getStart().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("America/New_York"));
+        ZonedDateTime endAppointmentEST = appointment.getEnd().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("America/New_York"));
+
+        // check if the appointment start and end times fall within the business hours in EST
+        if (startAppointmentEST.toLocalTime().isBefore(startBusinessHoursEST) || endAppointmentEST.toLocalTime().isAfter(endBusinessHoursEST)) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Outside of business hours");
             alert.setHeaderText("Can't Schedule Appointment");
@@ -90,6 +100,10 @@ public class AppointmentsDaoImpl {
             return false;
         }
 
+        // convert the appointment start and end times back to local time
+        ZonedDateTime startAppointmentLocal = startAppointmentEST.withZoneSameInstant(ZoneId.systemDefault());
+        ZonedDateTime endAppointmentLocal = endAppointmentEST.withZoneSameInstant(ZoneId.systemDefault());
+
         // if there are no overlaps, insert the new appointment
         String insertSql = "INSERT INTO appointments (Appointment_ID, Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID, Contact_ID) VALUES (?,?,?,?,?,?,?, NOW(), USER(), NOW(), USER(), ?,?,?)";
         PreparedStatement insertPs = conn.prepareStatement(insertSql);
@@ -98,8 +112,8 @@ public class AppointmentsDaoImpl {
         insertPs.setString(3, appointment.getDescription());
         insertPs.setString(4, appointment.getLocation());
         insertPs.setString(5, appointment.getType());
-        insertPs.setString(6, DateTime.convertLocalToUTC(appointment.getStart(), ZoneId.systemDefault()).toString());
-        insertPs.setString(7, DateTime.convertLocalToUTC(appointment.getEnd(), ZoneId.systemDefault()).toString());
+        insertPs.setObject(6, startAppointmentLocal);
+        insertPs.setObject(7, endAppointmentLocal);
         insertPs.setInt(8, appointment.getCustomerID());
         insertPs.setInt(8, appointment.getCustomerID());
         insertPs.setInt(9, appointment.getUserID());
@@ -127,8 +141,8 @@ public class AppointmentsDaoImpl {
         PreparedStatement checkOverlapPs = conn.prepareStatement(checkOverlapSql);
         checkOverlapPs.setInt(1, appointment.getCustomerID());
         checkOverlapPs.setInt(2, appointment.getAppointmentID());
-        checkOverlapPs.setString(3, DateTime.convertLocalToUTC(appointment.getStart(), ZoneId.systemDefault()).toString());
-        checkOverlapPs.setString(4, DateTime.convertLocalToUTC(appointment.getEnd(), ZoneId.systemDefault()).toString());
+        checkOverlapPs.setTimestamp(3, Timestamp.valueOf(appointment.getStart()));
+        checkOverlapPs.setTimestamp(4, Timestamp.valueOf(appointment.getEnd()));
         ResultSet overlapRs = checkOverlapPs.executeQuery();
         if (overlapRs.next()) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "The appointment overlaps with an existing appointment for the same customer.", ButtonType.OK);
@@ -138,23 +152,36 @@ public class AppointmentsDaoImpl {
             return false;
         }
 
-        // get the business hours in the user's local time zone
-        ObservableList<LocalTime> businessHours = DateTime.getBusinessHoursInTimeZone(ZoneId.systemDefault());
+        // convert the appointment start and end times to EST
+        ZonedDateTime startAppointmentEST = appointment.getStart().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("America/New_York"));
+        ZonedDateTime endAppointmentEST = appointment.getEnd().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("America/New_York"));
+
+// get the business hours in EST
+        ObservableList<LocalTime> businessHours = DateTime.getBusinessHoursInTimeZone(ZoneId.of("America/New_York"));
         LocalTime startBusinessHours = businessHours.get(0);
         LocalTime endBusinessHours = businessHours.get(businessHours.size() - 1);
 
-        // convert the appointment start and end times to the user's local time zone
-        ZonedDateTime startAppointmentLocal = appointment.getStart().atZone(ZoneId.systemDefault());
-        ZonedDateTime endAppointmentLocal = appointment.getEnd().atZone(ZoneId.systemDefault());
-
-        // check if the appointment start and end times fall within the business hours
-        if (startAppointmentLocal.toLocalTime().isBefore(startBusinessHours) || endAppointmentLocal.toLocalTime().isAfter(endBusinessHours)) {
+// check if the appointment start and end times fall within the business hours in EST
+        if (startAppointmentEST.toLocalTime().isBefore(startBusinessHours) || endAppointmentEST.toLocalTime().isAfter(endBusinessHours)) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Outside of business hours");
             alert.setHeaderText("Can't Schedule Appointment");
             alert.setContentText("The time you entered is outside of business hours.\nThe business hours are 8AM-10PM EST");
             alert.showAndWait();
+            return false;
+        }
 
+// convert the appointment start and end times back to the user's local time zone
+        ZonedDateTime startAppointmentLocal = startAppointmentEST.withZoneSameInstant(ZoneId.systemDefault());
+        ZonedDateTime endAppointmentLocal = endAppointmentEST.withZoneSameInstant(ZoneId.systemDefault());
+
+        // check if the appointment start and end times are on the same day
+        if (!startAppointmentLocal.toLocalDate().equals(endAppointmentLocal.toLocalDate())) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Appointment spans multiple days");
+            alert.setHeaderText("Can't Schedule Appointment");
+            alert.setContentText("The appointment cannot span multiple days.");
+            alert.showAndWait();
             return false;
         }
 
@@ -164,8 +191,8 @@ public class AppointmentsDaoImpl {
         ps.setString(2, appointment.getDescription());
         ps.setString(3, appointment.getLocation());
         ps.setString(4, appointment.getType());
-        ps.setString(5, DateTime.convertLocalToUTC(appointment.getStart(), ZoneId.systemDefault()).toString());
-        ps.setString(6, DateTime.convertLocalToUTC(appointment.getEnd(), ZoneId.systemDefault()).toString());
+        ps.setTimestamp(5, Timestamp.valueOf(startAppointmentLocal.toLocalDateTime()));
+        ps.setTimestamp(6, Timestamp.valueOf(endAppointmentLocal.toLocalDateTime()));
         ps.setInt(7, appointment.getCustomerID());
         ps.setInt(8, appointment.getUserID());
         ps.setInt(9, appointment.getContactID());
@@ -175,6 +202,7 @@ public class AppointmentsDaoImpl {
 
         return rowsUpdated > 0;
     }
+
 
     public static Appointments getAppointment(int appointmentID) throws SQLException {
         Connection conn = JDBC.openConnection();

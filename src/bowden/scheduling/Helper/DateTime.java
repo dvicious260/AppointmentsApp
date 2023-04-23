@@ -79,17 +79,31 @@ public class DateTime {
         return localDateTime.format(formatter);
     }
 
-    public static ObservableList<LocalTime> getBusinessHoursInTimeZone(ZoneId zoneId) {
+    /*public static ObservableList<LocalTime> getBusinessHoursInTimeZone() {
         ObservableList<LocalTime> businessHours = FXCollections.observableArrayList();
         LocalTime start = LocalTime.of(8, 0);
         LocalTime end = LocalTime.of(22, 0);
-        LocalDate today = LocalDate.now(zoneId);
+        LocalDate today = LocalDate.now(ZoneId.of("America/New_York"));
         while (start.isBefore(end)) {
             LocalDateTime local = LocalDateTime.of(today, start);
-            ZonedDateTime zone = ZonedDateTime.of(local, zoneId);
+            ZonedDateTime zone = ZonedDateTime.of(local, ZoneId.of("America/New_York"));
             businessHours.add(zone.withZoneSameInstant(ZoneId.systemDefault()).toLocalTime());
             start = start.plusMinutes(15);
         }
         return businessHours;
+    }*/
+    public static ObservableList<LocalTime> getBusinessHoursInTimeZone(ZoneId timeZone) {
+        ObservableList<LocalTime> businessHours = FXCollections.observableArrayList();
+        LocalTime start = LocalTime.of(8, 0);
+        LocalTime end = LocalTime.of(22, 0);
+        LocalDate today = LocalDate.now(ZoneId.of("America/New_York"));
+        while (start.isBefore(end)) {
+            LocalDateTime local = LocalDateTime.of(today, start);
+            ZonedDateTime zone = ZonedDateTime.of(local, timeZone);
+            businessHours.add(zone.withZoneSameInstant(ZoneId.of("America/New_York")).toLocalTime());
+            start = start.plusMinutes(15);
+        }
+        return businessHours;
     }
+
 }
