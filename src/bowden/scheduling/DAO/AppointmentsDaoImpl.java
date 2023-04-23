@@ -13,7 +13,19 @@ import java.sql.*;
 import java.time.*;
 import java.util.*;
 
+/**
+ This class is an implementation of the AppointmentsDao interface and provides methods for performing CRUD operations
+ on appointments in the database. It uses JDBC to interact with the database and is specific to the Appointments table.
+ */
 public class AppointmentsDaoImpl {
+
+    /**
+     * Returns an ObservableList of all appointments in the database that match the specified filter.
+     * If no filter is specified, all appointments are returned.
+     *
+     * @param filter a String representing the filter to be applied to the SELECT statement
+     * @return an ObservableList of all appointments that match the specified filter
+     */
     public static ObservableList<Appointments> getAllAppointments(String filter) {
         ObservableList<Appointments> allAppointments = FXCollections.observableArrayList();
         String sqlGetAppointments = "SELECT * FROM appointments";
@@ -47,6 +59,14 @@ public class AppointmentsDaoImpl {
         return allAppointments;
     }
 
+    /**
+     * Inserts a new appointment into the database if the appointment does not overlap with any existing appointments for the same customer,
+     * does not span multiple days, and falls within the business hours (8AM-10PM EST).
+     *
+     * @param appointment the appointment to be inserted into the database
+     * @return true if the appointment was successfully inserted into the database; false otherwise
+     * @throws SQLException if a database access error occurs
+     */
     public static boolean insertAppointment(Appointments appointment) throws SQLException {
         Connection conn = JDBC.openConnection();
         if (appointment.getEnd().isBefore(appointment.getStart())) {
@@ -125,7 +145,17 @@ public class AppointmentsDaoImpl {
         return rowsInserted > 0; // return true if the insert succeeded
     }
 
-
+    /**
+     * Updates an appointment in the database.
+     * Checks if the appointment end time is before the start time, and shows an error message if it is.
+     * Checks if the appointment overlaps with any existing appointments for the same customer, and shows an error message if it does.
+     * Checks if the appointment start and end times fall within the business hours in the America/New_York time zone, and shows an error message if they don't.
+     * Checks if the appointment spans multiple days, and shows an error message if it does.
+     *
+     * @param appointment the appointment to update
+     * @return true if the appointment was successfully updated, false otherwise
+     * @throws SQLException if there is an error executing the SQL query
+     */
     public static boolean updateAppointment(Appointments appointment) throws SQLException {
         Connection conn = JDBC.openConnection();
 
@@ -203,7 +233,13 @@ public class AppointmentsDaoImpl {
         return rowsUpdated > 0;
     }
 
-
+    /**
+     * Gets an appointment from the database based on its appointment ID.
+     *
+     * @param appointmentID the ID of the appointment to get
+     * @return the appointment with the specified ID, or null if no such appointment exists
+     * @throws SQLException if there is an error executing the SQL query
+     */
     public static Appointments getAppointment(int appointmentID) throws SQLException {
         Connection conn = JDBC.openConnection();
         String query = "SELECT * FROM appointments WHERE Appointment_ID = ?";
@@ -225,7 +261,14 @@ public class AppointmentsDaoImpl {
         }
         return null;
     }
-
+    /**
+     * Deletes an appointment from the database based on its appointment ID.
+     * Shows a confirmation dialog before deleting the appointment.
+     *
+     * @param appointmentID the ID of the appointment to delete
+     * @return true if the appointment was successfully deleted, false otherwise
+     * @throws SQLException if there is an error executing the SQL query
+     */
     public static boolean deleteAppointment(int appointmentID) throws SQLException {
         Appointments appointmentToDelete = getAppointment(appointmentID);
         String appointmentIDString = String.valueOf(appointmentID);
@@ -245,6 +288,12 @@ public class AppointmentsDaoImpl {
 
     }
 
+    /**
+
+     This method retrieves the maximum appointment ID from the "appointments" table.
+     @return int The maximum appointment ID.
+     @throws SQLException if a database access error occurs.
+     */
     public static int getMaxAppointmentID() throws SQLException {
         int maxId = 0;
         try (Connection connection = JDBC.openConnection();
@@ -261,6 +310,9 @@ public class AppointmentsDaoImpl {
         return maxId;
     }
 
+    /**
+     This method checks for upcoming appointments within the next 15 minutes and displays a warning alert if any are found.
+     */
     public static void checkUpcomingAppointments() {
         ObservableList<Appointments> appointments = getAllAppointments("");
         LocalDateTime now = LocalDateTime.now();
@@ -288,6 +340,12 @@ public class AppointmentsDaoImpl {
         }
     }
 
+    /**
+     * Retrieves a list of monthly summaries of appointments from the database.
+     *
+     * @return a list of MonthlySummary objects
+     * @throws SQLException if there is an error executing the SQL query
+     */
     public List<MonthlySummary> getMonthlySummary() throws SQLException {
         List<MonthlySummary> monthlySummaries = new ArrayList<>();
         Connection conn = JDBC.openConnection();
@@ -307,7 +365,13 @@ public class AppointmentsDaoImpl {
         return monthlySummaries;
     }
 
-    public static ObservableList<Appointments> getAppointmentsByCustomer(int contactID) {
+    /**
+     * Retrieves a list of appointments for a given contact ID from the database.
+     *
+     * @param contactID the ID of the contact whose appointments to retrieve
+     * @return an ObservableList of Appointments objects
+     */
+    public static ObservableList<Appointments> getAppointmentsByContact(int contactID) {
         ObservableList<Appointments> appointments = FXCollections.observableArrayList();
         String sql = "SELECT * FROM appointments WHERE Contact_ID = ?";
         try {

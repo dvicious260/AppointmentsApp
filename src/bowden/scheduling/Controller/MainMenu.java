@@ -25,6 +25,11 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ * The MainMenu class represents the main menu screen of the scheduling application.
+ * It allows the user to view, add, modify, and delete appointments and customers,
+ * as well as generate reports.
+ */
 public class MainMenu implements Initializable {
     private static Customer customerSelection;
     private static Appointments appointmentSelection;
@@ -112,9 +117,13 @@ public class MainMenu implements Initializable {
     @FXML
     private RadioButton rbuttonViewWeek;
 
-
+    /**
+     * Loads the "addAppointment" FXML file into the scene and displays it in a new window.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws IOException If there is an error loading the FXML file.
+     */
     @FXML
-    void addAppointment(ActionEvent event) throws IOException {
+    public void addAppointment(ActionEvent event) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/bowden/scheduling/View/addAppointment.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         Scene scene = new Scene(fxmlLoader.load());
@@ -123,34 +132,55 @@ public class MainMenu implements Initializable {
 
     }
 
+    /**
+     * Calls the "loadAppointments" method with an empty filter to display all appointments.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     */
     @FXML
-    void viewAll(ActionEvent event) {
+    public void viewAll(ActionEvent event) {
         loadAppointments("");
     }
 
+    /**
+     * Calls the "loadAppointments" method with a filter to display appointments in the current month.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     */
     @FXML
-    void viewMonth(ActionEvent event) {
+    public void viewMonth(ActionEvent event) {
         // Filter by current month
         int month = LocalDateTime.now().getMonthValue();
         String filter = "MONTH(start) = " + month;
         loadAppointments(filter);
     }
 
+    /**
+     * Calls the "loadAppointments" method with a filter to display appointments in the current week.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     */
     @FXML
-    void viewWeek(ActionEvent event) {
+    public void viewWeek(ActionEvent event) {
         // Filter by current week
         LocalDateTime now = LocalDateTime.now();
         String filter = "WEEK(start) = WEEK('" + now + "')";
         loadAppointments(filter);
     }
 
+    /**
+     * Loads appointments from the database and displays them in the appointment table using the provided filter.
+     * @param filter A SQL WHERE clause to filter the appointments to display.
+     */
     private void loadAppointments(String filter) {
         AppointmentsDaoImpl appointmentsDao = new AppointmentsDaoImpl();
         appointmentTable.setItems(appointmentsDao.getAllAppointments(filter));
     }
 
+    /**
+     * Loads the "addCustomer" FXML file into the scene and displays it in a new window.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws IOException If there is an error loading the FXML file.
+     */
     @FXML
-    void addCustomer(ActionEvent event) throws IOException {
+    public void addCustomer(ActionEvent event) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/bowden/scheduling/View/addCustomer.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         Scene scene = new Scene(fxmlLoader.load());
@@ -159,8 +189,13 @@ public class MainMenu implements Initializable {
 
     }
 
+    /**
+     * Loads the "reports" FXML file into the scene and displays it in a new window.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws IOException If there is an error loading the FXML file.
+     */
     @FXML
-    void reports(ActionEvent event) throws IOException {
+    public void reports(ActionEvent event) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/bowden/scheduling/View/reports.fxml"));
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         Scene scene = new Scene(fxmlLoader.load());
@@ -169,8 +204,13 @@ public class MainMenu implements Initializable {
 
     }
 
+    /**
+     * Deletes the selected appointment from the database.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws SQLException If there is an error deleting the appointment from the database.
+     */
     @FXML
-    void deleteAppointment(ActionEvent event) throws SQLException {
+    public void deleteAppointment(ActionEvent event) throws SQLException {
         appointmentSelection = appointmentTable.getSelectionModel().getSelectedItem();
         if (appointmentSelection == null) {
             Alert noSelectionAlert = new Alert(Alert.AlertType.ERROR);
@@ -191,13 +231,32 @@ public class MainMenu implements Initializable {
 
     }
 
+    /**
+     * Logs out the current user and returns to the login screen.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws IOException If there is an error loading the login FXML file.
+     */
     @FXML
-    void logout(ActionEvent event) {
-
+    public void logout(ActionEvent event) throws IOException {
+        Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        quitAlert.setTitle("Logout Application");
+        quitAlert.setContentText("Are you sure you want to logout?");
+        Optional<ButtonType> result = quitAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/bowden/scheduling/View/Login.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(fxmlLoader.load());
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
+    /**
+     * Quits the application.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     */
     @FXML
-    void quit(ActionEvent event) {
+    public void quit(ActionEvent event) {
         Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
         quitAlert.setTitle("Quit Application");
         quitAlert.setContentText("Are you sure you want to quit?");
@@ -208,8 +267,13 @@ public class MainMenu implements Initializable {
         }
     }
 
+    /**
+     * Deletes the selected customer from the database if the customer has no appointments.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws SQLException If there is an error deleting the customer from the database.
+     */
     @FXML
-    void deleteCustomer(ActionEvent event) throws SQLException {
+    public void deleteCustomer(ActionEvent event) throws SQLException {
         customerSelection = customerTable.getSelectionModel().getSelectedItem();
         if (customerSelection == null) {
             Alert noSelectionAlert = new Alert(Alert.AlertType.ERROR);
@@ -229,8 +293,14 @@ public class MainMenu implements Initializable {
 
     }
 
+    /**
+     * Loads the "modifyAppointment" FXML file into the scene and displays it in a new window with the data from the selected appointment pre-populated.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws IOException If there is an error loading the FXML file.
+     * @throws SQLException If there is an error retrieving the appointment data from the database.
+     */
     @FXML
-    void modifyAppointment(ActionEvent event) throws IOException, SQLException {
+    public void modifyAppointment(ActionEvent event) throws IOException, SQLException {
         appointmentSelection = appointmentTable.getSelectionModel().getSelectedItem();
         if (appointmentSelection == null) {
             Alert noSelectionAlert = new Alert(Alert.AlertType.ERROR);
@@ -251,9 +321,14 @@ public class MainMenu implements Initializable {
             stage.show();
         }
     }
-
+    /**
+     * Loads the "modifyCustomer" FXML file into the scene and displays it in a new window with the data from the selected customer pre-populated.
+     * @param event An ActionEvent representing the button click that triggered this method.
+     * @throws IOException If there is an error loading the FXML file.
+     * @throws SQLException If there is an error retrieving the appointment data from the database.
+     */
     @FXML
-    void modifyCustomer(ActionEvent event) throws IOException, SQLException {
+    public void modifyCustomer(ActionEvent event) throws IOException, SQLException {
         customerSelection = customerTable.getSelectionModel().getSelectedItem();
         if (customerSelection == null) {
             Alert noSelectionAlert = new Alert(Alert.AlertType.ERROR);
@@ -275,7 +350,20 @@ public class MainMenu implements Initializable {
         }
     }
 
-
+    /**
+     * Initializes the controller class.
+     * This method is automatically called by JavaFX after the FXML file has been loaded.
+     * The method initializes the customer table and appointments table, and sets up event handlers
+     * for user interactions.
+     *
+     * <p>The lambda expression in this method is used to set the cell value factory for the
+     * "State/Province" column of the customer table. It retrieves the customer's division
+     * and sets the value of the cell to the name of the division's corresponding state or province.
+     * If an error occurs while retrieving the division from the database, a runtime exception is thrown.</p>
+     *
+     * @param url the location used to resolve relative paths for the root object, or null if the location is not known
+     * @param resourceBundle the resources used to localize the root object, or null if the root object was not localized
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         CustomersDaoImpl dao = new CustomersDaoImpl(); // Create an instance of the class

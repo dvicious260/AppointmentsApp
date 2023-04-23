@@ -21,6 +21,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ * The Login class is the controller for the login screen of the application. It handles user authentication
+ * and displays appropriate error messages if login fails.
+ */
 public class Login implements Initializable {
     //private final static ResourceBundle LoginResourceBundle = ResourceBundle.getBundle("login", Locale.getDefault());
 
@@ -52,8 +56,16 @@ public class Login implements Initializable {
     @FXML
     private TextField usernameText;
 
+    /**
+     * Called when the user clicks the "Login" button. Validates the user's credentials and logs the attempt.
+     * If login is successful, loads the main menu screen. Otherwise, displays an error message.
+     *
+     * @param event the event that triggered this method call
+     * @throws SQLException if an error occurs while accessing the database
+     * @throws IOException  if an error occurs while loading the main menu screen
+     */
     @FXML
-    void login(ActionEvent event) throws SQLException, IOException {
+    public void login(ActionEvent event) throws SQLException, IOException {
         String username = usernameText.getText();
         String password = passwordText.getText();
 
@@ -87,9 +99,14 @@ public class Login implements Initializable {
 
     }
 
-
+    /**
+     * Handles the quit button action. Displays a confirmation dialog to the user
+     * and closes the application if the user confirms the action.
+     *
+     * @param event The event that triggered the method call.
+     */
     @FXML
-    void quit(ActionEvent event) {
+    public void quit(ActionEvent event) {
         Alert quitAlert = new Alert(Alert.AlertType.CONFIRMATION);
         quitAlert.setTitle("Quit Application");
         quitAlert.setContentText("Are you sure you want to quit?");
@@ -101,6 +118,12 @@ public class Login implements Initializable {
 
     }
 
+    /**
+     * Initializes the login screen with the appropriate translated text for the user's locale.
+     *
+     * @param url            the location used to resolve relative paths for the root object, or null if the location is not known
+     * @param resourceBundle the resources used to localize the root object, or null if the root object was not localized
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Get the default resource bundle

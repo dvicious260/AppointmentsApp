@@ -12,12 +12,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ This class provides data access methods for the Customers table in the database.
+ */
 public class CustomersDaoImpl {
-    /*public boolean insertCustomer(Customer customer){}
-    public boolean updateCustomer(int customerID){}
-    public boolean deleteCustomer(int customerID){}
-    public boolean getCustomer(int customerID){}*/
 
+    /**
+     * This method retrieves all customers from the database
+     *
+     * @return an ObservableList of all customers in the database
+     */
     public static ObservableList<Customer> getAllCustomers() {
         ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
         try {
@@ -44,7 +48,13 @@ public class CustomersDaoImpl {
         return allCustomers;
     }
 
-
+    /**
+     * This method inserts a new customer into the database.
+     *
+     * @param customer the customer object to be inserted
+     * @return a boolean indicating if the insert was successful
+     * @throws SQLException if an error occurs while accessing the database
+     */
     public static boolean insertCustomer(Customer customer) throws SQLException {
         JDBC.openConnection();
         String sql = "INSERT INTO customers (Customer_Name, Address, Postal_Code, Phone, Create_Date, Created_By, Last_Update, Last_Updated_By, Division_ID) VALUES (?,?,?,?, NOW(), USER(), NOW(), USER(), ?)";
@@ -61,7 +71,13 @@ public class CustomersDaoImpl {
         return rowsInserted > 0; // return true if the insert succeeded
     }
 
-
+    /**
+     * This method updates an existing customer in the database.
+     *
+     * @param customer the customer object to be updated
+     * @return a boolean indicating if the update was successful
+     * @throws SQLException if an error occurs while accessing the database
+     */
     public static boolean updateCustomer(Customer customer) throws SQLException {
         String sql = "UPDATE customers SET Customer_Name = ?, Address = ?, Postal_Code = ?, Phone = ?, Last_Update = NOW(), Last_Updated_By = USER(), Division_ID = ? WHERE Customer_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -77,7 +93,12 @@ public class CustomersDaoImpl {
         return rowsUpdated > 0;
     }
 
-
+    /**
+     Retrieves a customer by ID from the database.
+     @param customerID the ID of the customer to retrieve.
+     @return a Customer object if a matching customer is found, or null if no customer is found.
+     @throws SQLException if an error occurs while accessing the database.
+     */
     public static Customer getCustomer(int customerID) throws SQLException {
         String sql = "SELECT * FROM customers WHERE Customer_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -98,7 +119,12 @@ public class CustomersDaoImpl {
         return null;
     }
 
-
+    /**
+     Deletes a customer from the database by ID.
+     @param customerId the ID of the customer to delete.
+     @return true if the customer was successfully deleted, or false if the customer could not be deleted due to associated appointments.
+     @throws SQLException if an error occurs while accessing the database.
+     */
     public static boolean deleteCustomer(int customerId) throws SQLException {
         // check if customer has associated appointments
         boolean hasAppointments = checkAppointments(customerId);
@@ -124,7 +150,13 @@ public class CustomersDaoImpl {
         }
     }
 
-    private static boolean checkAppointments(int customerId) throws SQLException {
+/**
+ Checks whether a customer has any associated appointments.
+ @param customerId the ID of the customer to check.
+ @return true if the customer has associated appointments, or false if the customer has no associated appointments.
+ @throws SQLException if an error occurs while accessing the database.
+ */
+    public static boolean checkAppointments(int customerId) throws SQLException {
         String sql = "SELECT COUNT(*) AS count FROM appointments WHERE Customer_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
         ps.setInt(1, customerId);
@@ -134,6 +166,11 @@ public class CustomersDaoImpl {
         return count > 0;
     }
 
+    /**
+     Retrieves the maximum customer ID from the database.
+     @return the maximum customer ID in the database.
+     @throws SQLException if an error occurs while accessing the database.
+     */
     public static int getMaxCustomerId() throws SQLException {
         int maxId = 0;
         try (Connection connection = JDBC.openConnection();
@@ -150,6 +187,11 @@ public class CustomersDaoImpl {
         return maxId;
     }
 
+    /**
+     Retrieves a list of CountryStats objects representing the customer statistics per country.
+     @return a list of CountryStats objects representing the customer statistics per country
+     @throws SQLException if a database access error occurs
+     */
     public List<CountryStats> getCountryStats() throws SQLException {
         Connection conn = JDBC.openConnection();
         List<CountryStats> countryStatistics = new ArrayList<>();
@@ -173,6 +215,4 @@ public class CustomersDaoImpl {
 
         return countryStatistics;
     }
-
-
 }

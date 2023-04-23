@@ -22,6 +22,13 @@ import java.util.ResourceBundle;
 
 import static bowden.scheduling.Helper.Methods.home;
 
+/**
+ The ModifyCustomer class is the controller for the Modify Customer form.
+ It allows the user to edit an existing customer's information and save the changes.
+ The class includes methods for populating the form with the customer's current information,
+ saving changes to the database, and canceling the modification process.
+ The class implements the Initializable interface to initialize the form when it is loaded.
+ */
 public class ModifyCustomer implements Initializable {
     @FXML
     private TextField modifyCustomerAddress;
@@ -50,13 +57,27 @@ public class ModifyCustomer implements Initializable {
     @FXML
     private ComboBox<FirstLevelDivisions> modifyCustomerState;
 
+    /**
+     * The cancel method cancels the modification process and returns to the home screen.
+     *
+     * @param event An ActionEvent that is triggered when the "Cancel" button is clicked.
+     * @throws IOException if there is an error navigating back to the home screen.
+     */
     @FXML
-    void cancel(ActionEvent event) throws IOException {
+    public void cancel(ActionEvent event) throws IOException {
         home(event);
     }
 
+    /**
+     * The saveCustomer method saves the changes made to an existing customer to the database.
+     * If any required fields are blank, an error message is displayed and the method returns.
+     *
+     * @param event An ActionEvent that is triggered when the "Save" button is clicked.
+     * @throws IOException if there is an error navigating back to the home screen.
+     * @throws SQLException if there is an error updating the customer in the database.
+     */
     @FXML
-    void saveCustomer(ActionEvent event) throws IOException, SQLException {
+    public void saveCustomer(ActionEvent event) throws IOException, SQLException {
         if (modifyCustomerName.getText().isEmpty() || modifyCustomerAddress.getText().isEmpty() || modifyCustomerPhone.getText().isEmpty() || modifyCustomerPostal.getText().isEmpty() || modifyCustomerState.getValue() == null || modifyCustomerCountry.getValue() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Missing Fields");
@@ -91,7 +112,16 @@ public class ModifyCustomer implements Initializable {
         home(event);
     }
 
-
+    /**
+     Sets the fields of the modify customer form with the information of the given customer,
+     populates the country and division combo boxes, and sets the selected country and division.
+     @param customer the customer whose information will be displayed in the modify customer form
+     @throws SQLException if there is an error retrieving data from the database
+     The lambda function is used to listen for changes in the country combo box. When a new country is selected,
+     the function populates the divisions combo box based on the selected country, and selects the division of
+     the given customer if it exists in the new country. If there is no division for the customer in the new country,
+     the function selects the first division in the list.
+     */
     @FXML
     public void sendCustomer(Customer customer) throws SQLException {
         modifyCustomerName.setText(customer.getName());
@@ -133,7 +163,10 @@ public class ModifyCustomer implements Initializable {
         modifyCustomerState.getSelectionModel().select(customer.getDivision());
     }
 
-
+    /**
+     Disables the modifyCustomerID field on the modify customer form.
+     Called when the form is initialized.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         modifyCustomerID.setDisable(true);

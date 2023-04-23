@@ -24,7 +24,14 @@ import java.util.ResourceBundle;
 
 import static bowden.scheduling.Helper.Methods.home;
 
+/**
+
+ This class is responsible for adding a new appointment to the appointment database.
+
+ It implements the Initializable interface to initialize the class.
+ */
 public class AddAppointment implements Initializable {
+
     @FXML
     private TextField appointmentID;
 
@@ -45,31 +52,50 @@ public class AddAppointment implements Initializable {
 
     @FXML
     private TextField typeTextField;
+
     @FXML
     private ComboBox<Contacts> contactComboBox;
 
     @FXML
     private ComboBox<Customer> customerComboBox;
+
     @FXML
     private ComboBox<Users> userComboBox;
+
     @FXML
     private ComboBox<LocalTime> endComboBox;
+
     @FXML
     private ComboBox<LocalTime> startComboBox;
 
     @FXML
     private DatePicker startDatePicker;
+
     @FXML
     private DatePicker endDatePicker;
 
+    /**
 
+     This method cancels the addition of a new appointment and returns the user to the home screen.
+     @param event the event triggered by the user clicking the cancel button
+     @throws IOException if an error occurs during the loading of the home screen
+     */
     @FXML
-    void cancel(ActionEvent event) throws IOException {
+    public void cancel(ActionEvent event) throws IOException {
         home(event);
     }
+    /**
 
+     This method saves the new appointment to the database, provided that all fields are filled in.
+
+     @param event the event triggered by the user clicking the save button
+
+     @throws IOException if an error occurs during the loading of the home screen
+
+     @throws SQLException if an error occurs during the interaction with the appointment database
+     */
     @FXML
-    void save(ActionEvent event) throws IOException, SQLException {
+    public void save(ActionEvent event) throws IOException, SQLException {
         if (titleTextField.getText().isEmpty() || descriptionTextField.getText().isEmpty() || locationTextField.getText().isEmpty() || typeTextField.getText().isEmpty() || startDatePicker.getValue() == null || startComboBox.getValue() == null || endDatePicker.getValue() == null || endComboBox.getValue() == null || customerComboBox.getValue() == null || userComboBox.getValue() == null || contactComboBox.getValue() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Missing Fields");
@@ -90,11 +116,11 @@ public class AddAppointment implements Initializable {
         LocalTime endTime = endComboBox.getValue();
         LocalDateTime end = LocalDateTime.of(endDate, endTime);
 
-        // Get selected contact and user
+// Get selected contact and user
         Contacts contact = contactComboBox.getValue();
         Users user = userComboBox.getValue();
 
-        // Get selected customer
+// Get selected customer
         Customer customer = customerComboBox.getValue();
 
         Appointments newAppointment = new Appointments(id, title, description, location, type, start, end, customer.getId(), user.getUserID(), contact.getContactID());
@@ -106,6 +132,13 @@ public class AddAppointment implements Initializable {
         home(event);
     }
 
+    /**
+     Initializes the appointment creation form by setting the maximum appointment ID, disabling the appointment ID field,
+     and populating the contact, start time, end time, customer, and user combo boxes.
+     @param url the location of the FXML file
+     @param resourceBundle the resources used by the FXML file
+     @throws RuntimeException if there is an error retrieving data from the database
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         appointmentID.setDisable(true);

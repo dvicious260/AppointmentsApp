@@ -17,12 +17,20 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ResourceBundle;
 
 import static bowden.scheduling.Helper.Methods.home;
 
+/**
+ The ModifyAppointment class controls the logic for the modify appointment screen.
+ This class allows the user to modify existing appointments and save the changes.
+ The class is initialized when the user selects the modify button from the main screen.
+ The class implements the Initializable interface to initialize the screen elements.
+ The class also defines FXML fields for the various screen elements such as buttons, text fields, and combo boxes.
+ */
 public class ModifyAppointment implements Initializable {
     @FXML
     private TextField appointmentIDTextField;
@@ -67,13 +75,25 @@ public class ModifyAppointment implements Initializable {
     @FXML
     private ComboBox<Users> userComboBox;
 
+    /**
+     This method cancels the current appointment and redirects the user to the home screen.
+     @param event The ActionEvent that triggered this method.
+     @throws IOException if there is an error loading the home screen.
+     */
     @FXML
-    void cancel(ActionEvent event) throws IOException {
+    public void cancel(ActionEvent event) throws IOException {
         home(event);
     }
 
+    /**
+     This method saves the appointment information entered by the user and updates it in the database.
+     If any required field is empty, it displays an error message.
+     @param event The ActionEvent that triggered this method.
+     @throws IOException if there is an error loading the home screen.
+     @throws SQLException if there is an error updating the appointment in the database.
+     */
     @FXML
-    void save(ActionEvent event) throws IOException, SQLException {
+    public void save(ActionEvent event) throws IOException, SQLException {
         if (titleTextField.getText().isEmpty() || descriptionTextField.getText().isEmpty() || locationTextField.getText().isEmpty() || typeTextField.getText().isEmpty() || startDatePicker.getValue() == null || startComboBox.getValue() == null || endDatePicker.getValue() == null || endComboBox.getValue() == null || customerComboBox.getValue() == null || userComboBox.getValue() == null || contactComboBox.getValue() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Missing Fields");
@@ -120,9 +140,12 @@ public class ModifyAppointment implements Initializable {
         home(event);
     }
 
-
-
-
+    /**
+     This method populates the appointment information fields with the information
+     from the given Appointments object.
+     @param appointments The Appointments object to be displayed in the fields.
+     @throws SQLException if there is an error retrieving the contact, customer, or user from the database.
+     */
     @FXML
     public void sendAppointment(Appointments appointments) throws SQLException {
         appointmentIDTextField.setText(String.valueOf(appointments.getAppointmentID()));
@@ -153,6 +176,13 @@ public class ModifyAppointment implements Initializable {
 
     }
 
+    /**
+     Initializes the controller class.
+     This method is called when the FXML loader loads the corresponding view.
+     It disables the appointment ID text field to prevent the user from modifying it.
+     @param url The URL of the FXML file.
+     @param resourceBundle The ResourceBundle of the FXML file.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         appointmentIDTextField.setDisable(true);

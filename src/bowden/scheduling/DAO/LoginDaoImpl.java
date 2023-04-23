@@ -7,8 +7,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ The LoginDaoImpl class provides methods for authenticating user login credentials against stored usernames and passwords in the database.
+ */
 public class LoginDaoImpl {
 
+    /**
+     * Authenticates the user's login credentials against stored usernames and passwords in the database.
+     * @param username the username entered by the user
+     * @param password the password entered by the user
+     * @return true if the entered username and password match a stored username and password, false otherwise
+     * @throws SQLException if an SQL exception occurs
+     */
     public static boolean getLogin(String username, String password) throws SQLException {
         Connection conn = JDBC.openConnection();
 

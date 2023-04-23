@@ -10,9 +10,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ The UserDaoImpl class provides methods for CRUD (create, read, update, delete) operations on Users table in the database.
+ */
 public class UserDaoImpl {
 
-
+    /**
+     * Inserts a new user into the Users table.
+     *
+     * @param user The User object to be inserted into the database.
+     * @return True if the insertion was successful, false otherwise.
+     * @throws SQLException If there was an error with the SQL query or database connection.
+     */
     public static boolean insertUser(Users user) throws SQLException {
         String sql = "INSERT INTO users (User_ID, User_Name, Password) VALUES (?,?,?)";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -25,7 +34,13 @@ public class UserDaoImpl {
         return rowsInserted > 0; // return true if the insert succeeded
     }
 
-
+    /**
+     * Updates an existing user in the Users table.
+     *
+     * @param user The User object to be updated in the database.
+     * @return True if the update was successful, false otherwise.
+     * @throws SQLException If there was an error with the SQL query or database connection.
+     */
     public static boolean updateUser(Users user) throws SQLException {
         String sql = "UPDATE users SET User_Name = ?, Password = ?, Last_Update = NOW(), Last_Updated_By = USER() WHERE User_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -38,7 +53,13 @@ public class UserDaoImpl {
         return rowsUpdated > 0;
     }
 
-
+    /**
+     * Retrieves a user from the Users table based on the user ID.
+     *
+     * @param userID The ID of the user to retrieve.
+     * @return The User object representing the retrieved user, or null if no user was found with the given ID.
+     * @throws SQLException If there was an error with the SQL query or database connection.
+     */
     public static Users getUser(int userID) throws SQLException {
         Connection conn = JDBC.openConnection();
         String query = "SELECT * FROM users WHERE User_ID = ?";
@@ -53,7 +74,13 @@ public class UserDaoImpl {
         return null;
     }
 
-
+    /**
+     * Deletes a user from the Users table based on the user ID.
+     *
+     * @param userID The ID of the user to delete.
+     * @return True if the deletion was successful, false otherwise.
+     * @throws SQLException If there was an error with the SQL query or database connection.
+     */
     public static boolean deleteUser(int userID) throws SQLException {
         String sql = "DELETE FROM users WHERE User_ID = ?";
         PreparedStatement ps = JDBC.connection.prepareStatement(sql);
@@ -62,6 +89,11 @@ public class UserDaoImpl {
         return rowsDeleted > 0;
     }
 
+    /**
+     * Retrieves all users from the Users table.
+     *
+     * @return An ObservableList of User objects representing all users in the database.
+     */
     public static ObservableList<Users> getAllUsers() {
         ObservableList<Users> users = FXCollections.observableArrayList();
 

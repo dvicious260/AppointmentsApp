@@ -11,7 +11,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ This class provides implementation for performing database operations related to first level divisions.
+ */
 public class DivisionsDaoImpl {
+
+    /**
+     Retrieves a list of first level divisions for a given country ID.
+     @param countryId The ID of the country for which to retrieve divisions.
+     @return An ObservableList of FirstLevelDivisions objects representing the divisions for the given country ID.
+     */
     public static ObservableList<FirstLevelDivisions> getDivisionsByCountryId(int countryId) {
         ObservableList<FirstLevelDivisions> divisions = FXCollections.observableArrayList();
 
@@ -35,6 +44,12 @@ public class DivisionsDaoImpl {
         return divisions;
     }
 
+    /**
+     Retrieves a first level division object by ID.
+     @param id The ID of the division to retrieve.
+     @return A FirstLevelDivisions object representing the division with the given ID, or null if not found.
+     @throws SQLException if an error occurs while performing the database query.
+     */
     public static FirstLevelDivisions getDivisionById(int id) throws SQLException {
         FirstLevelDivisions division = null;
 
@@ -52,10 +67,5 @@ public class DivisionsDaoImpl {
         }
 
         return division;
-    }
-
-    public static Countries getCountryByDivision(FirstLevelDivisions division) throws SQLException {
-        int countryId = division.getCountryID();
-        return CountriesDaoImpl.getCountryById(countryId);
     }
 }

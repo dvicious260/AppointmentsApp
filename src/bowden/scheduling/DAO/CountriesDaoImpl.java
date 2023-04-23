@@ -10,8 +10,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ The CountriesDaoImpl class provides methods to retrieve all countries and get a country by ID from the database.
+ */
 public class CountriesDaoImpl {
 
+    /**
+     * Retrieves all countries from the database.
+     *
+     * @return an ObservableList of all countries.
+     */
     public static ObservableList<Countries> getAllCountries() {
         ObservableList<Countries> countries = FXCollections.observableArrayList();
 
@@ -32,6 +40,13 @@ public class CountriesDaoImpl {
         return countries;
     }
 
+    /**
+     * Retrieves a country by its ID from the database.
+     *
+     * @param countryID the ID of the country to retrieve.
+     * @return the country with the specified ID, or null if no such country exists.
+     * @throws SQLException if there is an error accessing the database.
+     */
     public static Countries getCountryById(int countryID) throws SQLException {
         Connection conn = JDBC.openConnection();
         String query = "SELECT * FROM countries WHERE Country_ID = ?";
@@ -44,5 +59,6 @@ public class CountriesDaoImpl {
         }
         return null;
     }
+
 
 }

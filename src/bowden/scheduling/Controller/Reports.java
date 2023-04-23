@@ -22,9 +22,16 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static bowden.scheduling.DAO.AppointmentsDaoImpl.getAppointmentsByCustomer;
+import static bowden.scheduling.DAO.AppointmentsDaoImpl.getAppointmentsByContact;
 import static bowden.scheduling.Helper.Methods.home;
 
+/**
+ The Reports class contains the logic for generating various reports related to the appointments and customers.
+ This class is responsible for initializing the table views for appointment type, appointments by contact, and
+ customer country statistics. It also handles populating the combo box with contacts and updating the appointments
+ table view when a new contact is selected. The Reports class uses various DAO implementations and helper classes
+ to retrieve data from the database and format it for display in the table views.
+ */
 public class Reports {
 
     @FXML
@@ -81,12 +88,24 @@ public class Reports {
     @FXML
     private TableView<CountryStats> customerCountry;
 
+    /**
+     * This method handles the back button event and navigates the user to the home screen.
+     * @param event The button event
+     * @throws IOException If there is an error navigating to the home screen
+     */
     @FXML
-    void back(ActionEvent event) throws IOException {
+    public void back(ActionEvent event) throws IOException {
         home(event);
 
     }
 
+    /**
+     * This method initializes the table views and combo box for the Reports screen.
+     * It sets the items for the appointment type and customer country table views, and sets the cell value factories
+     * for each column in the appointment type, appointments by contact, and customer country table views. It also
+     * populates the combo box with contacts and updates the appointments table view when a new contact is selected.
+     * @throws SQLException If there is an error retrieving data from the database
+     */
     public void initialize() throws SQLException {
         try {
             AppointmentsDaoImpl getSummary = new AppointmentsDaoImpl();
@@ -117,7 +136,7 @@ public class Reports {
             comboContacts.setValue(comboContacts.getItems().get(0));
             Contacts selectedContact = comboContacts.getValue();
             int contactID = selectedContact.getContactID();
-            ObservableList<Appointments> appointments = getAppointmentsByCustomer(contactID);
+            ObservableList<Appointments> appointments = getAppointmentsByContact(contactID);
             appointmentsList.setAll(appointments);
         }
 
@@ -140,7 +159,7 @@ public class Reports {
             Contacts selectedContact = comboContacts.getValue();
             int contactID = selectedContact.getContactID();
 
-            ObservableList<Appointments> appointments = getAppointmentsByCustomer(contactID);
+            ObservableList<Appointments> appointments = getAppointmentsByContact(contactID);
 
             // Set the items of the table view to the list of appointments
             appointmentsList.setAll(appointments);

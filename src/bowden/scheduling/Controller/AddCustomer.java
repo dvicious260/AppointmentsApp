@@ -23,8 +23,10 @@ import java.util.ResourceBundle;
 import static bowden.scheduling.Helper.Methods.home;
 
 
+/**
+ * A controller class for adding a new customer.
+ */
 public class AddCustomer implements Initializable {
-
 
     @FXML
     private TextField newCustomerAddress;
@@ -53,13 +55,26 @@ public class AddCustomer implements Initializable {
     @FXML
     private Button newCustomerSave;
 
+    /**
+     * Handles the cancel button action and navigates back to the home screen.
+     *
+     * @param event The event triggered by the user's action.
+     * @throws IOException If there is an error navigating to the home screen.
+     */
     @FXML
-    void cancelAdd(ActionEvent event) throws IOException {
+    public void cancelAdd(ActionEvent event) throws IOException {
         home(event);
     }
 
+    /**
+     * Saves the new customer information and navigates back to the home screen.
+     *
+     * @param event The event triggered by the user's action.
+     * @throws SQLException If there is an error inserting the customer into the database.
+     * @throws IOException  If there is an error navigating to the home screen.
+     */
     @FXML
-    void saveCustomer(ActionEvent event) throws SQLException, IOException {
+    public void saveCustomer(ActionEvent event) throws SQLException, IOException {
         if (newCustomerName.getText().isEmpty() || newCustomerPhone.getText().isEmpty() || newCustomerAddress.getText().isEmpty() || newCustomerPostal.getText().isEmpty() || newCustomerState.getValue() == null || newCustomerCountry.getValue() == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Missing Fields");
@@ -68,6 +83,7 @@ public class AddCustomer implements Initializable {
             alert.showAndWait();
             return;
         }
+
         int id = CustomersDaoImpl.getMaxCustomerId() + 1;
         String customerName = newCustomerName.getText();
         String customerPhone = newCustomerPhone.getText();
@@ -83,15 +99,24 @@ public class AddCustomer implements Initializable {
             e.printStackTrace();
         }
         home(event);
-
-
     }
 
+    /**
+     * Deletes the selected customer.
+     *
+     * @param event The event triggered by the user's action.
+     * @throws IOException If there is an error navigating to the home screen.
+     */
     @FXML
-    void deleteCustomer(ActionEvent event) throws IOException {
+    public void deleteCustomer(ActionEvent event) throws IOException {
 
     }
-
+    /**
+     * Initializes the add customer form.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if the location is not known.
+     * @param resourceBundle The resources used to localize the root object, or null if the root object was not localized.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         newCustomerID.setDisable(true);
